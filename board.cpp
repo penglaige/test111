@@ -129,6 +129,7 @@ Board::Board() : m_states()
 	set({4, 4}, CellState::WHITE);
 }
 
+
 CellState Board::get(const CellPosition position) const
 {
 	assert(boundsCheck(position));
@@ -140,6 +141,7 @@ void Board::set(const CellPosition position, const CellState state)
 	assert(boundsCheck(position));
 	m_states[static_cast<std::size_t>(position.y)][static_cast<std::size_t>(position.x)] = state;
 }
+
 
 bool Board::isLegalMove(const CellPosition position, const Side side) const
 {

@@ -1,0 +1,3 @@
+/Users/yukikopeng/Desktop/inthelab/my-reversi-peng/build/CMakeFiles/rebuild_cache.dir
+/Users/yukikopeng/Desktop/inthelab/my-reversi-peng/build/CMakeFiles/edit_cache.dir
+/Users/yukikopeng/Desktop/inthelab/my-reversi-peng/build/CMakeFiles/reversi.dir

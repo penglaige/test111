@@ -30,6 +30,7 @@ int main(int argc, char* argv[])
 	players.at(static_cast<std::size_t>(Side::WHITE)) = std::move(command_line_params.white_player);
 
 	Board board;
+    Board board_copy;
 
 	for (Side turn = Side::BLACK;; turn = getOpponentSide(turn)) {
 		std::cout << board << "\n"
