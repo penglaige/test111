@@ -30,7 +30,6 @@ int main(int argc, char* argv[])
 	players.at(static_cast<std::size_t>(Side::WHITE)) = std::move(command_line_params.white_player);
 
 	Board board;
-    Board board_copy;
 
 	for (Side turn = Side::BLACK;; turn = getOpponentSide(turn)) {
 		std::cout << board << "\n"
@@ -38,6 +37,17 @@ int main(int argc, char* argv[])
 
 		if (board.count(CellState::EMPTY) == 0) {
 			// no empty cell
+            int black = board.count(CellState::BLACK);
+            int white = board.count(CellState::WHITE);
+            if(black>white){
+                std::cout<<"winner is black!\n"<<"black : white = "<<black<<" : "<<white<<std::endl;
+            }
+            else if(black==white){
+                std::cout<<"tied"<<std::endl;
+            }
+            else{
+                std::cout<<"winner is white!\n"<<"black : white = "<<black<<" : "<<white<<std::endl;
+            }
 			break;
 		}
 		auto legal_moves = board.getAllLegalMoves(turn);

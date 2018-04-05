@@ -1,5 +1,6 @@
 #include <vector>
 #include <time.h>
+#include <math.h>
 
 #include "sample_computer_player.hpp"
 
@@ -9,29 +10,32 @@ namespace reversi
 CellPosition SampleComputerPlayer::thinkNextMove(const Board& board)
 {
     Side turn = getSide();
-    int best_move = MCTS::Choose_best_move(const Board& board,turn);
+    int best_move = Choose_best_move(board,turn);
     return board.getAllLegalMoves(turn).at(best_move);
     
 }
 
-int MCTS::Choose_best_move(const Board& board,Side turn)
+int Choose_best_move(const Board& board,Side turn)
     {
+        std::vector<CellPosition> legal_moves;
         legal_moves = board.getAllLegalMoves(turn);
         int node_num = legal_moves.size();
         int best_move;
+        double all_visit=0;
         
         time_t start,end;
         start = time(NULL);
         double difftimes = 0.0;
         
-        while(difftimes<=3.0){
-            void MCTS::Selection(const Board& board,turn);
+        while(difftimes<=2.5){
+            selection(board,turn,all_visit);
+            all_visit++;
             end = time(NULL);
             difftimes = difftime(end,start);
         }
         
         double best_uct_value = -1000;
-        for(i=0;i<node_num;i++)
+        for(int i=0;i<node_num;i++)
         {
             if(selection_node[i].uct_value>=best_uct_value)
             {
@@ -42,32 +46,68 @@ int MCTS::Choose_best_move(const Board& board,Side turn)
         return best_move;
     }
 
-    void MCTS::Selection(const Board& board,Side turn)
+    void selection(const Board& board,Side turn, double all_visit)
     {
+        std::vector<CellPosition> legal_moves;
         legal_moves = board.getAllLegalMoves(turn);
-        const node_num = legal_moves.size();
-        board.docopy();
+        const int node_num = legal_moves.size();
         
-        int random = generate_random(0);
-        random_move = random % node_num;
+        Board board_play;
+        Board board_store;
+        copy(board,board_play);
+        copy(board,board_store);
         
-        board.placeDisk(legal_moves.at[random_move],turn)
-        Side turn = getOpponentSide(turn)
-        selection_node[random_move].num_visit+=1;
-        selection_node[random_move].position = legal_moves.at[random_move];
-        int outcome = MCTS::Simulation(const Board& board,turn);
-        if((getSide()==BLACK && outcome == 1) && (getSide()==WHITE && outcome == -1))
+        int max=0;
+        int selection_move=0;
+        for(int node = 0;node<node_num;node++)
         {
-           selection_node[random_move].uct_value+=1;
+            selection_node[node].uct_value = selection_node[node].possibility + sqrt(log(all_visit)/selection_node[node].num_visit);
+            if(selection_node[node].uct_value>max){
+                max=selection_node[node].uct_value;
+                int selection_move = node;
+            }
         }
-        board.undocopy();
+        
+        board_play.placeDisk(legal_moves.at(selection_move),turn);
+        turn = getOpponentSide(turn);
+        selection_node[selection_move].num_visit+=1;
+        selection_node[selection_move].possibility = expansion(board_play,turn,selection_move);
         
     }
     
-    int MCTS::Simulation(const Board& board,Side turn,int random_control,int pass_count)
+    double expansion(Board& board,Side turn,int selection_move)
     {
+        std::vector<CellPosition> legal_moves;
         legal_moves = board.getAllLegalMoves(turn);
-        const node_num = legal_moves.size();
+        const int node_num = legal_moves.size();
+        Board board_ep;
+        
+        if(node_num==0){
+            return 0;
+        }
+        for(int i=0;i<node_num;i++)
+        {
+            copy(board,board_ep);
+            board_ep.placeDisk(legal_moves.at(i),turn);
+            turn = getOpponentSide(turn);
+            selection_node[selection_move].num_ep_visit+=1;
+            int outcome = Simulation(board_ep,turn,0,0);
+            Side BLACK = Side::BLACK;
+            Side WHITE = Side::WHITE;
+            if((turn==BLACK && outcome == 1) && (turn==WHITE && outcome == -1))
+            {
+                selection_node[selection_move].num_win+=1;
+            }
+        }
+        return selection_node[selection_move].num_win/selection_node[selection_move].num_ep_visit;
+        
+    }
+    
+    int Simulation(Board& board,Side turn,int random_control,int pass_count)
+    {
+        std::vector<CellPosition> legal_moves;
+        legal_moves = board.getAllLegalMoves(turn);
+        const int node_num = legal_moves.size();
         int outcome;
         int random;
         int random_move;
@@ -76,7 +116,7 @@ int MCTS::Choose_best_move(const Board& board,Side turn)
         {
             pass_count++;
             if(pass_count==2){
-                outcome = MCTS::Outcome();
+                outcome = Outcome(board);
                 return outcome;
             }
         }
@@ -86,30 +126,30 @@ int MCTS::Choose_best_move(const Board& board,Side turn)
             random = generate_random(random_control);
             random_control+=random;
             random_move = random % node_num;
-            board.placeDisk(legal_moves.at[random_move],turn);
+            board.placeDisk(legal_moves.at(random_move),turn);
             turn = getOpponentSide(turn);
-            return MCTS::Simulation(const Board& board,turn);
+            return Simulation(board,turn,random_control,pass_count);
         }
         
     }
     
-    int MCTS::Outcome() const
+    int Outcome(Board& board)
     {
         int black,white;
-        black = board.count(BLACK);
-        white = board.count(WHITE);
+        black = board.count(CellState::BLACK);
+        white = board.count(CellState::WHITE);
         if(black>white){
             return 1;
         }
-        else if(black = white){
+        else if(black == white){
             return 0;
         }
         else{
-            retrun -1;
+            return -1;
         }
     }
     
-    int MCTS::generate_random(int i)
+    int generate_random(int i)
     {
         int random_number;
         
@@ -117,5 +157,26 @@ int MCTS::Choose_best_move(const Board& board,Side turn)
         random_number=rand();
         return random_number;
     }
+    
+    void copy(const Board& board,Board& board_play)
+    {
+        for(int y = 0;y<board.HEIGHT;y++){
+            for(int x=0;x<board.WIDTH;x++){
+                CellState state = board.get({x,y});
+                board_play.set({x,y},state);
+            }
+        }
+    }
+    
+    void undo_copy(Board& board_play,Board& board_store)
+    {
+        for(int y = 0;y<board_play.HEIGHT;y++){
+            for(int x = 0;x<board_play.WIDTH;x++){
+                CellState state = board_store.get({x,y});
+                board_play.set({x,y},state);
+            }
+        }
+    }
+
     
 }  // namespace reversi

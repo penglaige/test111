@@ -135,6 +135,8 @@ vector
 -
 time.h
 -
+math.h
+-
 sample_computer_player.hpp
 /Users/yukikopeng/Desktop/inthelab/my-reversi-peng/player/sample_computer_player.hpp
 

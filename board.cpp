@@ -210,7 +210,7 @@ bool Board::boundsCheck(CellPosition position)//
 	}
 	return false;
 }
-
+    
 std::ostream& operator<<(std::ostream& os, const Board& board)
 {
 	os << "  a b c d e f g h";
