@@ -137,6 +137,8 @@ time.h
 -
 math.h
 -
+iostream
+-
 sample_computer_player.hpp
 /Users/yukikopeng/Desktop/inthelab/my-reversi-peng/player/sample_computer_player.hpp
 

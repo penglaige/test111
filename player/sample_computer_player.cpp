@@ -1,6 +1,7 @@
 #include <vector>
 #include <time.h>
 #include <math.h>
+#include <iostream>
 
 #include "sample_computer_player.hpp"
 
@@ -21,13 +22,13 @@ int Choose_best_move(const Board& board,Side turn)
         legal_moves = board.getAllLegalMoves(turn);
         int node_num = legal_moves.size();
         int best_move;
-        double all_visit=0;
+        double all_visit=0.0001;
         
         time_t start,end;
         start = time(NULL);
         double difftimes = 0.0;
         
-        while(difftimes<=2.5){
+        while(difftimes<=2){
             selection(board,turn,all_visit);
             all_visit++;
             end = time(NULL);
@@ -37,6 +38,7 @@ int Choose_best_move(const Board& board,Side turn)
         double best_uct_value = -1000;
         for(int i=0;i<node_num;i++)
         {
+            std::cout<<"the ith move uct_value: "<<selection_node[i].possibility<<"  "<<selection_node[i].uct_value<<std::endl;
             if(selection_node[i].uct_value>=best_uct_value)
             {
                 best_uct_value=selection_node[i].uct_value;
@@ -57,17 +59,18 @@ int Choose_best_move(const Board& board,Side turn)
         copy(board,board_play);
         copy(board,board_store);
         
-        int max=0;
         int selection_move=0;
         for(int node = 0;node<node_num;node++)
         {
-            selection_node[node].uct_value = selection_node[node].possibility + sqrt(log(all_visit)/selection_node[node].num_visit);
-            if(selection_node[node].uct_value>max){
-                max=selection_node[node].uct_value;
-                int selection_move = node;
+            selection_node[node].uct_value = selection_node[node].possibility + 0.2*sqrt(log(all_visit)/selection_node[node].num_visit);
+        }
+        double max=0;
+        for(int j=0;j<node_num;j++){
+            if(selection_node[j].uct_value>max){
+                max=selection_node[j].uct_value;
+                selection_move = j;
             }
         }
-        
         board_play.placeDisk(legal_moves.at(selection_move),turn);
         turn = getOpponentSide(turn);
         selection_node[selection_move].num_visit+=1;
@@ -81,6 +84,7 @@ int Choose_best_move(const Board& board,Side turn)
         legal_moves = board.getAllLegalMoves(turn);
         const int node_num = legal_moves.size();
         Board board_ep;
+        //std::cout<<"frst ep:"<<"turn:"<<turn<<std::endl;
         
         if(node_num==0){
             return 0;
@@ -94,10 +98,11 @@ int Choose_best_move(const Board& board,Side turn)
             int outcome = Simulation(board_ep,turn,0,0);
             Side BLACK = Side::BLACK;
             Side WHITE = Side::WHITE;
-            if((turn==BLACK && outcome == 1) && (turn==WHITE && outcome == -1))
+            if((turn==BLACK && outcome == 1) || (turn==WHITE && outcome == -1))
             {
                 selection_node[selection_move].num_win+=1;
             }
+            turn = getOpponentSide(turn);
         }
         return selection_node[selection_move].num_win/selection_node[selection_move].num_ep_visit;
         
@@ -119,6 +124,8 @@ int Choose_best_move(const Board& board,Side turn)
                 outcome = Outcome(board);
                 return outcome;
             }
+            turn = getOpponentSide(turn);
+            return Simulation(board,turn,random_control,pass_count);
         }
         if(node_num >0)
         {
@@ -176,6 +183,14 @@ int Choose_best_move(const Board& board,Side turn)
                 board_play.set({x,y},state);
             }
         }
+    }
+    
+    void print_score(Board& board)
+    {
+        int black = board.count(CellState::BLACK);
+        int white = board.count(CellState::WHITE);
+        
+        std::cout<<"black : winter "<<black<<":"<<white<<std::endl;
     }
 
     

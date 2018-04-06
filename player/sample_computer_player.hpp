@@ -24,7 +24,7 @@ public:
     {
         double uct_value=0;
         double possibility=0;
-        double num_visit=0.00001;
+        double num_visit=0.0001;
         double num_win=0;
         int num_ep_visit=0;
     };
@@ -40,6 +40,7 @@ public:
     int generate_random(int i);//
     void copy(const Board& board,Board& board_play);
     void undo_copy(Board& board_play,Board& board_store);
+    void print_score(Board& board);
         
     
 }  // namespace reversi

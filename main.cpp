@@ -34,6 +34,7 @@ int main(int argc, char* argv[])
 	for (Side turn = Side::BLACK;; turn = getOpponentSide(turn)) {
 		std::cout << board << "\n"
 		          << std::endl;
+        print_score(board);
 
 		if (board.count(CellState::EMPTY) == 0) {
 			// no empty cell
