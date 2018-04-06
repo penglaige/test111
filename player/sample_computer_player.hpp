@@ -14,10 +14,11 @@ public:
 	virtual CellPosition thinkNextMove(const Board& board) override;
 };
 
-    struct Expansion_node
+    struct expansion_node
     {
-        int nun_win=0;
-        int num_visit=0;
+        double num_win=0;
+        int num_ep_visit=0;
+        double ep_win_possibility=0;
     };
     
     struct Selection_node
@@ -27,6 +28,8 @@ public:
         double num_visit=0.0001;
         double num_win=0;
         int num_ep_visit=0;
+        expansion_node ep_node[60];
+        int num_child_node;
     };
     static Selection_node selection_node[60];
     

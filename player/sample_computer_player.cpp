@@ -36,15 +36,30 @@ int Choose_best_move(const Board& board,Side turn)
         }
         
         double best_uct_value = -1000;
+        int bad_node;
         for(int i=0;i<node_num;i++)
         {
-            std::cout<<"the ith move uct_value: "<<selection_node[i].possibility<<"  "<<selection_node[i].uct_value<<std::endl;
-            if(selection_node[i].uct_value>=best_uct_value)
+            for(int j=0;j<selection_node[i].num_child_node;j++)
             {
-                best_uct_value=selection_node[i].uct_value;
-                best_move = i;
+                double min = 1;
+                if(selection_node[i].ep_node[j].ep_win_possibility<min){
+                    min = selection_node[i].ep_node[j].ep_win_possibility;
+                    bad_node = i;
+                }
+                std::cout<<i<<"th selection: "<<j<<"th the exp possibility: "<<selection_node[i].ep_node[j].ep_win_possibility<<std::endl;
+            }
+            std::cout<<"the ith move uct_value: "<<selection_node[i].possibility<<"  "<<selection_node[i].uct_value<<std::endl;
+        }
+        for(int k=0;k<node_num;k++)
+        {
+            
+            if(selection_node[k].uct_value>=best_uct_value && k!=bad_node)
+            {
+                best_uct_value=selection_node[k].uct_value;
+                best_move = k;
             }
         }
+        std::cout<<"best move: "<<best_move<<std::endl;
         return best_move;
     }
 
@@ -84,6 +99,7 @@ int Choose_best_move(const Board& board,Side turn)
         legal_moves = board.getAllLegalMoves(turn);
         const int node_num = legal_moves.size();
         Board board_ep;
+        selection_node[selection_move].num_child_node=node_num;
         //std::cout<<"frst ep:"<<"turn:"<<turn<<std::endl;
         
         if(node_num==0){
@@ -95,14 +111,17 @@ int Choose_best_move(const Board& board,Side turn)
             board_ep.placeDisk(legal_moves.at(i),turn);
             turn = getOpponentSide(turn);
             selection_node[selection_move].num_ep_visit+=1;
+            selection_node[selection_move].ep_node[i].num_ep_visit+=1;
             int outcome = Simulation(board_ep,turn,0,0);
             Side BLACK = Side::BLACK;
             Side WHITE = Side::WHITE;
             if((turn==BLACK && outcome == 1) || (turn==WHITE && outcome == -1))
             {
                 selection_node[selection_move].num_win+=1;
+                selection_node[selection_move].ep_node[i].num_win+=1;
             }
             turn = getOpponentSide(turn);
+            selection_node[selection_move].ep_node[i].ep_win_possibility=selection_node[selection_move].ep_node[i].num_win/selection_node[selection_move].ep_node[i].num_ep_visit;
         }
         return selection_node[selection_move].num_win/selection_node[selection_move].num_ep_visit;
         
@@ -190,7 +209,7 @@ int Choose_best_move(const Board& board,Side turn)
         int black = board.count(CellState::BLACK);
         int white = board.count(CellState::WHITE);
         
-        std::cout<<"black : winter "<<black<<":"<<white<<std::endl;
+        std::cout<<"black : white = "<<black<<":"<<white<<std::endl;
     }
 
     

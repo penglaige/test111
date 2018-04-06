@@ -22,7 +22,6 @@ int main(int argc, char* argv[])
 	    {"human", [](Side side) { return std::make_unique<HumanPlayer>(side); }},
 	    {"sample", [](Side side) { return std::make_unique<SampleComputerPlayer>(side); }},
 	};
-
 	auto command_line_params = parseCommandLineOptions(argc, argv, player_types);
 
 	std::array<std::unique_ptr<Player>, 2> players;
