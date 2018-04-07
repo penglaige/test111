@@ -30,6 +30,7 @@ public:
         int num_ep_visit=0;
         expansion_node ep_node[60];
         int num_child_node;
+        double bad_value;
     };
     static Selection_node selection_node[60];
     
@@ -44,6 +45,7 @@ public:
     void copy(const Board& board,Board& board_play);
     void undo_copy(Board& board_play,Board& board_store);
     void print_score(Board& board);
+    int choose(int node_num);
         
     
 }  // namespace reversi

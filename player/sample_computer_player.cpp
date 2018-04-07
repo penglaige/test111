@@ -21,44 +21,21 @@ int Choose_best_move(const Board& board,Side turn)
         std::vector<CellPosition> legal_moves;
         legal_moves = board.getAllLegalMoves(turn);
         int node_num = legal_moves.size();
-        int best_move;
+        int best_move=0;
         double all_visit=0.0001;
         
         time_t start,end;
         start = time(NULL);
         double difftimes = 0.0;
         
-        while(difftimes<=2){
+        while(difftimes<=1.8){
             selection(board,turn,all_visit);
             all_visit++;
             end = time(NULL);
             difftimes = difftime(end,start);
         }
         
-        double best_uct_value = -1000;
-        int bad_node;
-        for(int i=0;i<node_num;i++)
-        {
-            for(int j=0;j<selection_node[i].num_child_node;j++)
-            {
-                double min = 1;
-                if(selection_node[i].ep_node[j].ep_win_possibility<min){
-                    min = selection_node[i].ep_node[j].ep_win_possibility;
-                    bad_node = i;
-                }
-                std::cout<<i<<"th selection: "<<j<<"th the exp possibility: "<<selection_node[i].ep_node[j].ep_win_possibility<<std::endl;
-            }
-            std::cout<<"the ith move uct_value: "<<selection_node[i].possibility<<"  "<<selection_node[i].uct_value<<std::endl;
-        }
-        for(int k=0;k<node_num;k++)
-        {
-            
-            if(selection_node[k].uct_value>=best_uct_value && k!=bad_node)
-            {
-                best_uct_value=selection_node[k].uct_value;
-                best_move = k;
-            }
-        }
+        best_move=choose(node_num);
         std::cout<<"best move: "<<best_move<<std::endl;
         return best_move;
     }
@@ -210,6 +187,32 @@ int Choose_best_move(const Board& board,Side turn)
         int white = board.count(CellState::WHITE);
         
         std::cout<<"black : white = "<<black<<":"<<white<<std::endl;
+    }
+    
+    int choose(int node_num)
+    {
+        double max=0;
+        int best_move=0;
+        for(int i=0;i<node_num;i++){
+            double bad_value=1;
+            for(int j=0;j<selection_node[i].num_child_node;j++)
+            {
+                if(selection_node[i].ep_node[j].ep_win_possibility<bad_value)
+                {
+                    bad_value=selection_node[i].ep_node[j].ep_win_possibility;
+                    
+                }
+            }
+            selection_node[i].bad_value=bad_value;
+        }
+        
+        for(int k=0;k<node_num;k++){
+            if(selection_node[k].bad_value>max){
+                max=selection_node[k].bad_value;
+                best_move = k;
+            }
+        }
+        return best_move;
     }
 
     
