@@ -77,7 +77,6 @@ int Choose_best_move(const Board& board,Side turn)
         const int node_num = legal_moves.size();
         Board board_ep;
         selection_node[selection_move].num_child_node=node_num;
-        //std::cout<<"frst ep:"<<"turn:"<<turn<<std::endl;
         
         if(node_num==0){
             return 0;
