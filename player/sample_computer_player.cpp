@@ -35,6 +35,7 @@ int Choose_best_move(const Board& board,Side turn)
             difftimes = difftime(end,start);
         }
         
+        std::cout<<"all visit:"<<all_visit<<"\n"<<std::endl;
         best_move=choose(node_num);
         std::cout<<"best move: "<<best_move<<std::endl;
         return best_move;
@@ -194,15 +195,22 @@ int Choose_best_move(const Board& board,Side turn)
         int best_move=0;
         for(int i=0;i<node_num;i++){
             double bad_value=1;
+            std::cout<<i<<"th node uct_value:"<<selection_node[i].possibility<<" "<<selection_node[i].uct_value<<std::endl;
             for(int j=0;j<selection_node[i].num_child_node;j++)
             {
+                std::cout<<i<<"th se_node "<<j<<"th ep_node "<<"possibility:"<<selection_node[i].ep_node[j].ep_win_possibility<<"\n"<<std::endl;
+                std::cout<<i<<"th se_node "<<j<<"th ep_node "<<"win_num:"<<selection_node[i].ep_node[j].num_win<<" "<<"visit_num:"<<selection_node[i].ep_node[j].num_ep_visit<<"\n"<<std::endl;
+                selection_node[i].average+=selection_node[i].ep_node[j].ep_win_possibility;
                 if(selection_node[i].ep_node[j].ep_win_possibility<bad_value)
                 {
                     bad_value=selection_node[i].ep_node[j].ep_win_possibility;
                     
                 }
             }
+            selection_node[i].average /=selection_node[i].num_child_node;
+            std::cout<<i<<"the average:"<<selection_node[i].average<<"\n"<<std::endl;
             selection_node[i].bad_value=bad_value;
+            std::cout<<i<<"th worst value:"<<selection_node[i].bad_value<<"\n"<<std::endl;
         }
         
         for(int k=0;k<node_num;k++){
@@ -211,6 +219,7 @@ int Choose_best_move(const Board& board,Side turn)
                 best_move = k;
             }
         }
+        std::cout<<"best move:"<<best_move<<std::endl;
         return best_move;
     }
 

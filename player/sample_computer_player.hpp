@@ -31,6 +31,8 @@ public:
         expansion_node ep_node[60];
         int num_child_node;
         double bad_value;
+        double average=0;
+        double highest value;
     };
     static Selection_node selection_node[60];
     
