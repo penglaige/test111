@@ -13,36 +13,43 @@ public:
 
 	virtual CellPosition thinkNextMove(const Board& board) override;
 };
-
-    struct expansion_node
+    
+    struct ep
     {
-        double num_win=0;
-        int num_ep_visit=0;
-        double ep_win_possibility=0;
+        double win=0;
+        int visit=0;
+        double possibility=0;
     };
     
-    struct Selection_node
+    struct se
     {
         double uct_value=0;
-        double possibility=0;
-        double num_visit=0.0001;
-        double num_win=0;
-        int num_ep_visit=0;
-        expansion_node ep_node[60];
-        int num_child_node;
-        double bad_value;
-        double average=0;
-        double highest value;
+        int num_win=0;
+        double num_visit = 0.0001;
+        double win_possibility=0;
+        double worst=1;
+        double best=0;
+        ep ep[60];
+        int num_child;
     };
-    static Selection_node selection_node[60];
+    
+    struct be
+    {
+        int bad_move=0;
+        int num_child;
+        double all_visit=0.00001;
+        se se[60];
+    };
+    
+    static be be[60];
     
 
-    
-    void selection(const Board& board,Side turn, double all_visit);
-    double expansion(Board& board,Side turn,int selection_move);
+    int before(const Board& board,Side turn);
+    void selection(const Board& board,Side turn, double all_visit,int sele_node);
+    double expansion(Board& board,Side turn,int selection_move,int sele_node);
     int Simulation(Board& board,Side turn, int random_control,int pass_count );
     int Outcome(Board& board);//
-    int Choose_best_move(const Board& board,Side turn);
+    void Choose_best_move(const Board& board,Side turn,int sele_node);
     int generate_random(int i);//
     void copy(const Board& board,Board& board_play);
     void undo_copy(Board& board_play,Board& board_store);
